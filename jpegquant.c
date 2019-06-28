@@ -33,7 +33,7 @@
 void usage (char *cmd)
 /* complain about bad command line */
 {
-  fprintf(stderr, "\nusage: %s inputfile outputfile [quant=100]\n\n", cmd);
+  fprintf(stderr, "\nusage: %s input.jpg output.jpg [quant=100]\n\n", cmd);
   exit(EXIT_FAILURE);
 }
 
@@ -62,7 +62,6 @@ main (int argc, char **argv)
   outputname = argv[2];
   double recoef, coeferr, sumce, numc, quant = 100.0;
   if (argc == 4) quant = atof(argv[3]);
-  quant /= 100.0;
 
   /* Open the input and output files */
   if ((input_file = fopen(inputname, "rb")) == NULL) {
@@ -126,7 +125,8 @@ main (int argc, char **argv)
     }
   }
 
-  printf("ReQuant = %f\n", quant);
+  printf("ReQuant = %f%%\n", quant);
+  quant /= 100.0;
   sumce = 0.0;
   /* Print out or modify DCT coefficients */
   for (compnum=0; compnum<num_components; compnum++)
