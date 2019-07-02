@@ -1,0 +1,36 @@
+.TH "jpegquant" 1 "02 Jul 2019" "0.0.4" "User Manual"
+
+.SH NAME
+jpegquant
+
+.SH SYNOPSIS
+\fBjpegquant\fR [options] input.jpg output.jpg
+
+.SH DESCRIPTION
+JPEG DCT coefficients access in C. Quant JPEG DCT coefficients.
+
+.SH OPTIONS
+.TP
+\fB-q\fR N.N
+quant (default = 100.0);
+.TP
+\fB-h\fR
+help
+
+.SH EXAMPLE
+\fBjpegquant\fR -q 50 sample.jpg sample.jq50.jpg
+
+.SH COPYRIGHT
+ Copyright (C) 2012, Owen Campbell-Moore.
+ Modify 2019, zvezdochiot
+ Public Domain Mark 1.0
+
+.SH SEE ALSO
+ cjpeg(1),
+ djpeg(1),
+ jpeg-recompress(1).
+
+.SH CONTACTS
+Website:
+ \fIhttps://github.com/ImageProcessing-ElectronicPublications/jpegquant\fR
+

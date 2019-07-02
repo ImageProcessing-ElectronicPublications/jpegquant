@@ -19,6 +19,7 @@
 #include <string.h>
 #include <jerror.h>
 #include <jpeglib.h>
+#include <unistd.h>
 #define SIZEOF(object)((size_t) sizeof(object))
 #ifndef EXIT_FAILURE
 #define EXIT_FAILURE 1
@@ -33,7 +34,10 @@
 void usage (char *cmd)
 /* complain about bad command line */
 {
-    fprintf(stderr, "\nusage: %s input.jpg output.jpg [quant=100]\n\n", cmd);
+    printf("\nUsage:\n %s [options] input.jpg output.jpg\n\n", cmd);
+    printf(" options:\n");
+    printf("         -q N.N  quant (double, optional, default = 100.0)\n");
+    printf("         -h      this help\n\n");
     exit(EXIT_FAILURE);
 }
 
@@ -53,15 +57,33 @@ main (int argc, char **argv)
     JBLOCKARRAY row_ptrs[MAX_COMPONENTS];
     FILE * input_file;
     FILE * output_file;
+    char *inputname, *outputname;
+    double recoef, coeferr, sumce, numc, iquant, quant = 100.0;
+    int opt, fhelp = 0;
 
     /* Handle arguments */
-    if (argc < 3 || argc > 4) usage(argv[0]);
-    char *inputname;
-    inputname = argv[1];
-    char *outputname;
-    outputname = argv[2];
-    double recoef, coeferr, sumce, numc, iquant, quant = 100.0;
-    if (argc == 4) quant = atof(argv[3]);
+    while ((opt = getopt(argc, argv, ":q:h")) != -1)
+    {
+        switch(opt)
+        {
+            case 'q':
+                quant = atof(optarg);
+                break;
+            case 'h':
+                fhelp = 1;
+                break;
+            case ':':
+                printf("option needs a value\n");
+                break;
+            case '?':
+                printf("unknown option: %c\n", optopt);
+                break;
+        }
+    }
+    if (optind + 2 > argc || fhelp) usage(argv[0]);
+
+    inputname = argv[optind];
+    outputname = argv[optind + 1];
     if (strcmp(inputname, outputname) == 0)
     {
         fprintf(stderr, "ERROR: Cannot output to input %s\n", inputname);

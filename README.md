@@ -14,7 +14,7 @@ Origin:
 [211044]
 
 ```
-./jpegquant lena.q100.jpg lena.q100.jq50.jpg 50
+./jpegquant -q 50 lena.q100.jpg lena.q100.jq50.jpg
 ```
 ![Quant=50](images/lena.q100.jq50.jpg)  
 [176313]  
@@ -22,7 +22,7 @@ Origin:
 butteraugli: 0.782326
 
 ```
-./jpegquant lena.q100.jpg lena.q100.jq25.jpg 25
+./jpegquant -q 25 lena.q100.jpg lena.q100.jq25.jpg
 ```
 ![Quant=25](images/lena.q100.jq25.jpg)  
 [110952]  
@@ -30,7 +30,7 @@ butteraugli: 0.782326
 butteraugli: 1.688544
 
 ```
-./jpegquant lena.q100.jpg lena.q100.jq10.jpg 10
+./jpegquant -q 10 lena.q100.jpg lena.q100.jq10.jpg
 ```
 ![Quant=10](images/lena.q100.jq10.jpg)  
 [45875]  
@@ -38,7 +38,7 @@ butteraugli: 1.688544
 butteraugli: 4.625142
 
 ```
-./jpegquant lena.q100.jpg lena.q100.jq05.jpg 5
+./jpegquant -q 5 lena.q100.jpg lena.q100.jq05.jpg
 ```
 ![Quant=05](images/lena.q100.jq05.jpg)  
 [26211]  
@@ -55,7 +55,8 @@ Authors
 =======
 
 Copyright (C) 2012, Owen Campbell-Moore.  
-Modify 2019, zvezdochiot
+Modify 2019, zvezdochiot  
+Public Domain Mark 1.0
 
 HomePage
 ========
