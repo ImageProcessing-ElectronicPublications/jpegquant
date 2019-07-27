@@ -19,7 +19,9 @@
 #include <string.h>
 #include <jerror.h>
 #include <jpeglib.h>
+#ifndef S_SPLINT_S
 #include <unistd.h>
+#endif
 #define SIZEOF(object)((size_t) sizeof(object))
 #ifndef EXIT_FAILURE
 #define EXIT_FAILURE 1
@@ -80,22 +82,29 @@ main (int argc, char **argv)
                 break;
         }
     }
-    if (optind + 2 > argc || fhelp) usage(argv[0]);
+    if (optind + 1 > argc || fhelp) usage(argv[0]);
 
     inputname = argv[optind];
-    outputname = argv[optind + 1];
-    if (strcmp(inputname, outputname) == 0)
+    if (optind + 2 > argc)
     {
-        fprintf(stderr, "ERROR: Cannot output to input %s\n", inputname);
-        exit(EXIT_FAILURE);
+        outputname = "-";
+    } else {
+        outputname = argv[optind + 1];
+        if (strcmp(inputname, outputname) == 0)
+        {
+            fprintf(stderr, "ERROR: Cannot output to input %s\n", inputname);
+            exit(EXIT_FAILURE);
+        }
     }
     /* Open the input and output files */
-    if ((input_file = fopen(inputname, "rb")) == NULL)
+    input_file = (strcmp("-", inputname) == 0) ? stdin : fopen(inputname, "rb");
+    if (input_file == NULL)
     {
         fprintf(stderr, "ERROR: Can't open %s\n", inputname);
         exit(EXIT_FAILURE);
     }
-    if ((output_file = fopen(outputname, "wb")) == NULL)
+    output_file = (strcmp("-", outputname) == 0) ? stdout : fopen(outputname, "wb");
+    if (output_file == NULL)
     {
         fprintf(stderr, "ERROR: Can't open %s\n", outputname);
         exit(EXIT_FAILURE);
@@ -113,11 +122,11 @@ main (int argc, char **argv)
 
     /* Read file header */
     (void) jpeg_read_header(&inputinfo, TRUE);
-    printf("Read DCT coefficients successfully written to %s\n", inputname);
+    fprintf(stderr, "Read DCT coefficients successfully written to %s\n", inputname);
 
     /* Allocate memory for reading out DCT coeffs */
     for (compnum=0; compnum<inputinfo.num_components; compnum++)
-        coef_buffers[compnum] = ((&inputinfo)->mem->alloc_barray) 
+        coef_buffers[compnum] = ((&inputinfo)->mem->alloc_barray)
                             ((j_common_ptr) &inputinfo, JPOOL_IMAGE,
                              inputinfo.comp_info[compnum].width_in_blocks,
                              inputinfo.comp_info[compnum].height_in_blocks);
@@ -140,8 +149,8 @@ main (int argc, char **argv)
         block_row_size[compnum] = (size_t) SIZEOF(JCOEF)*DCTSIZE2*width_in_blocks[compnum];
         for (rownum=0; rownum<height_in_blocks[compnum]; rownum++)
         {
-            row_ptrs[compnum] = ((&inputinfo)->mem->access_virt_barray) 
-                                ((j_common_ptr) &inputinfo, coef_arrays[compnum], 
+            row_ptrs[compnum] = ((&inputinfo)->mem->access_virt_barray)
+                                ((j_common_ptr) &inputinfo, coef_arrays[compnum],
                                     rownum, (JDIMENSION) 1, FALSE);
             for (blocknum=0; blocknum<width_in_blocks[compnum]; blocknum++)
             {
@@ -153,7 +162,7 @@ main (int argc, char **argv)
         }
     }
 
-    printf("Quant = %f%%\n", quant);
+    fprintf(stderr, "Quant = %f%%\n", quant);
     quant /= 100.0;
     iquant = (quant == 0) ? 1.0 : 1.0 / quant;
     sumce = 0.0;
@@ -182,7 +191,7 @@ main (int argc, char **argv)
         }
     }
     if (numc > 0) sumce /= numc;
-    printf("QuantErr = %f\n", sumce);
+    fprintf(stderr, "QuantErr = %f\n", sumce);
     //printf("\n\n");
 
     /* Output the new DCT coeffs to a JPEG file */
@@ -190,10 +199,10 @@ main (int argc, char **argv)
     {
         for (rownum=0; rownum<height_in_blocks[compnum]; rownum++)
         {
-            row_ptrs[compnum] = ((&outputinfo)->mem->access_virt_barray) 
-                                ((j_common_ptr) &outputinfo, coef_arrays[compnum], 
+            row_ptrs[compnum] = ((&outputinfo)->mem->access_virt_barray)
+                                ((j_common_ptr) &outputinfo, coef_arrays[compnum],
                                  rownum, (JDIMENSION) 1, TRUE);
-            memcpy(row_ptrs[compnum][0][0], 
+            memcpy(row_ptrs[compnum][0][0],
                  coef_buffers[compnum][rownum][0],
                  block_row_size[compnum]);
         }
@@ -213,7 +222,7 @@ main (int argc, char **argv)
     fclose(output_file);
 
     /* All done. */
-    printf("New DCT coefficients successfully written to %s\n\n", outputname);
+    fprintf(stderr, "New DCT coefficients successfully written to %s\n\n", outputname);
     exit(jerr.num_warnings ? EXIT_WARNING : EXIT_SUCCESS);
     return 0; /* suppress no-return-value warnings */
 }
