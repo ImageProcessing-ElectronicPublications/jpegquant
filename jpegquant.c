@@ -19,9 +19,7 @@
 #include <string.h>
 #include <jerror.h>
 #include <jpeglib.h>
-#ifndef S_SPLINT_S
 #include <unistd.h>
-#endif
 #define SIZEOF(object)((size_t) sizeof(object))
 #ifndef EXIT_FAILURE
 #define EXIT_FAILURE 1
@@ -39,6 +37,7 @@ void usage (char *cmd)
     printf("\nUsage:\n %s [options] input.jpg output.jpg\n\n", cmd);
     printf(" options:\n");
     printf("         -q N.N  quant (double, optional, default = 100.0)\n");
+    printf("         -t N.N  threshold (double, optional, default = 0.0)\n");
     printf("         -h      this help\n\n");
     exit(EXIT_FAILURE);
 }
@@ -60,16 +59,19 @@ main (int argc, char **argv)
     FILE * input_file;
     FILE * output_file;
     char *inputname, *outputname;
-    double recoef, coeferr, sumce, numc, iquant, quant = 100.0;
+    double recoef, coeferr, sumce, sumcend, numc, iquant, quant = 100.0, thres=0.0;
     int opt, fhelp = 0;
 
     /* Handle arguments */
-    while ((opt = getopt(argc, argv, ":q:h")) != -1)
+    while ((opt = getopt(argc, argv, ":q:t:h")) != -1)
     {
         switch(opt)
         {
             case 'q':
                 quant = atof(optarg);
+                break;
+            case 't':
+                thres = atof(optarg);
                 break;
             case 'h':
                 fhelp = 1;
@@ -166,6 +168,7 @@ main (int argc, char **argv)
     quant /= 100.0;
     iquant = (quant == 0) ? 1.0 : 1.0 / quant;
     sumce = 0.0;
+    numc = 0;
     /* Print out or modify DCT coefficients */
     for (compnum=0; compnum<num_components; compnum++)
     {
@@ -181,17 +184,44 @@ main (int argc, char **argv)
                     recoef = (int)(recoef * quant);
                     recoef = (int)(recoef * iquant);
                     coeferr -= recoef;
-                    if (coeferr < 0) coeferr = -coeferr;
+                    coeferr = (coeferr < 0) ? -coeferr : coeferr;
                     sumce += coeferr;
                     numc++;
-                    coef_buffers[compnum][rownum][blocknum][i] = recoef;
-                    //printf("%i,", coef_buffers[compnum][rownum][blocknum][i]);
                 }
             }
         }
     }
     if (numc > 0) sumce /= numc;
-    fprintf(stderr, "QuantErr = %f\n", sumce);
+    numc = 0;
+    sumcend = 0.0;
+    for (compnum=0; compnum<num_components; compnum++)
+    {
+        for (rownum=0; rownum<height_in_blocks[compnum]; rownum++)
+        {
+            for (blocknum=0; blocknum<width_in_blocks[compnum]; blocknum++)
+            {
+                //printf("\n\nComponent: %i, Row:%i, Column: %i\n", compnum, rownum, blocknum);
+                for (i=0; i<DCTSIZE2; i++)
+                {
+                    recoef = coef_buffers[compnum][rownum][blocknum][i];
+                    coeferr = recoef;
+                    recoef = (int)(recoef * quant);
+                    recoef = (int)(recoef * iquant);
+                    coeferr -= recoef;
+                    if (coeferr * thres < sumce)
+                    {
+                        coeferr = (coeferr < 0) ? -coeferr : coeferr;
+                        sumcend += coeferr;
+                        numc++;
+                        coef_buffers[compnum][rownum][blocknum][i] = recoef;
+                    }
+                    //printf("%i,", coef_buffers[compnum][rownum][blocknum][i]);
+                }
+            }
+        }
+    }
+    if (numc > 0) sumcend /= numc;
+    fprintf(stderr, "QuantErr = %f\n", sumcend);
     //printf("\n\n");
 
     /* Output the new DCT coeffs to a JPEG file */
