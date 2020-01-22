@@ -1,4 +1,4 @@
-.TH "jpegquant" 1 "16 Jan 2020" "0.0.6" "User Manual"
+.TH "jpegquant" 1 "22 Jan 2020" "0.0.7" "User Manual"
 
 .SH NAME
 jpegquant
@@ -11,8 +11,14 @@ JPEG DCT coefficients access in C. Quant JPEG DCT coefficients.
 
 .SH OPTIONS
 .TP
+\fB-c\fR N
+count cicle (int, optional, default = 1)
+.TP
+\fB-k\fR N.N
+coeff average (default = 1.0);
+.TP
 \fB-q\fR N.N
-quant (default = 100.0);
+quant (default = 1.0);
 .TP
 \fB-t\fR N.N
 threshold (default = 0.0);
@@ -21,11 +27,11 @@ threshold (default = 0.0);
 help
 
 .SH EXAMPLE
-\fBjpegquant\fR -q 50 sample.jpg sample.jq50.jpg
+\fBjpegquant\fR -q 2 sample.jpg sample.jq2.jpg
 
 .SH COPYRIGHT
  Copyright (C) 2012, Owen Campbell-Moore.
- Modify 2019, zvezdochiot
+ Modify 2019-2020, zvezdochiot
  Public Domain Mark 1.0
 
 .SH SEE ALSO

@@ -14,19 +14,19 @@ Origin:
 [211044]
 
 ```
-./jpegquant -q 50 lena.q100.jpg lena.q100.jq50.jpg
+./jpegquant -q 2 lena.q100.jpg lena.q100.jq02.jpg
 ```
-![Quant=50](images/lena.q100.jq50.jpg)  
+![Quant=02](images/lena.q100.jq02.jpg)  
 [176313]  
-![butteraugli=50](images/lena.q100.jq50.butteraugli.jpg)  
+![butteraugli=2](images/lena.q100.jq02.butteraugli.jpg)  
 butteraugli: 0.782326
 
 ```
-./jpegquant -q 25 lena.q100.jpg lena.q100.jq25.jpg
+./jpegquant -q 4 lena.q100.jpg lena.q100.jq04.jpg
 ```
-![Quant=25](images/lena.q100.jq25.jpg)  
+![Quant=04](images/lena.q100.jq04.jpg)  
 [110952]  
-![butteraugli=25](images/lena.q100.jq25.butteraugli.jpg)  
+![butteraugli=4](images/lena.q100.jq04.butteraugli.jpg)  
 butteraugli: 1.688544
 
 ```
@@ -38,11 +38,11 @@ butteraugli: 1.688544
 butteraugli: 4.625142
 
 ```
-./jpegquant -q 5 lena.q100.jpg lena.q100.jq05.jpg
+./jpegquant -q 20 lena.q100.jpg lena.q100.jq20.jpg
 ```
-![Quant=05](images/lena.q100.jq05.jpg)  
+![Quant=20](images/lena.q100.jq20.jpg)  
 [26211]  
-![butteraugli=05](images/lena.q100.jq05.butteraugli.jpg)  
+![butteraugli=20](images/lena.q100.jq20.butteraugli.jpg)  
 butteraugli: 7.342572
 
 See also
@@ -55,7 +55,7 @@ Authors
 =======
 
 Copyright (C) 2012, Owen Campbell-Moore.  
-Modify 2019, zvezdochiot  
+Modify 2019-2020, zvezdochiot  
 Public Domain Mark 1.0
 
 HomePage
