@@ -37,6 +37,8 @@ void usage (char *cmd)
     printf("\nUsage:\n %s [options] input.jpg output.jpg\n\n", cmd);
     printf(" options:\n");
     printf("         -c N    count cicle (int, optional, default = 1)\n");
+    printf("         -l N    lower bound (int, optional, default = 0)\n");
+    printf("         -u N    upper bound (int, optional, default = max)\n");
     printf("         -k N.N  coeff average (double, optional, default = 1.0)\n");
     printf("         -q N.N  quant (double, optional, default = 1.0)\n");
     printf("         -t N.N  threshold (double, optional, default = 0.0)\n");
@@ -62,15 +64,21 @@ main (int argc, char **argv)
     FILE * output_file;
     char *inputname, *outputname;
     double recoef, coeferr, sumce, sumcec, sumcend, numc = 0.0, iquant = 1.0, quant = 1.0, thres=0.0, kavr = 1.0;
-    int opt, fhelp = 0, ccicle = 1, ct;
+    int opt, fhelp = 0, ccicle = 1, ct, lower = 0, upper = -1;
 
     /* Handle arguments */
-    while ((opt = getopt(argc, argv, ":c:k:q:t:h")) != -1)
+    while ((opt = getopt(argc, argv, ":c:l:u:k:q:t:h")) != -1)
     {
         switch(opt)
         {
             case 'c':
                 ccicle = atoi(optarg);
+                break;
+            case 'l':
+                lower = atoi(optarg);
+                break;
+            case 'u':
+                upper = atoi(optarg);
                 break;
             case 'k':
                 kavr = atof(optarg);
@@ -177,6 +185,8 @@ main (int argc, char **argv)
     fprintf(stderr, "Quant = %f\n", quant);
     quant = (quant < 0.0 || quant > 0.0) ? 1.0 / quant : 1.0;
     iquant = 1.0 / quant;
+    upper = ((upper > 0)  && (upper < lower)) ? lower : upper;
+    lower--;
     sumce = 0.0;
     sumcend = 0.0;
     for (ct=0; ct<ccicle; ct++)
@@ -192,21 +202,24 @@ main (int argc, char **argv)
                     for (i=0; i<DCTSIZE2; i++)
                     {
                         recoef = coef_buffers[compnum][rownum][blocknum][i];
-                        coeferr = recoef;
-                        recoef = (int)(recoef * quant);
-                        recoef = (int)(recoef * iquant);
-                        recoef = (int)(recoef * kavr + coeferr * (1.0 - kavr));
-                        coeferr -= recoef;
-                        coeferr = (coeferr < 0) ? -coeferr : coeferr;
-                        if (ct > 0)
+                        if (recoef > (double)lower && (upper < 0 || recoef < (double)upper))
                         {
-                            if (coeferr * thres < sumce)
+                            coeferr = recoef;
+                            recoef = (int)(recoef * quant);
+                            recoef = (int)(recoef * iquant);
+                            recoef = (int)(recoef * kavr + coeferr * (1.0 - kavr));
+                            coeferr -= recoef;
+                            coeferr = (coeferr < 0) ? -coeferr : coeferr;
+                            if (ct > 0)
                             {
+                                if (coeferr * thres < sumce)
+                                {
+                                    sumcec += coeferr;
+                                    coef_buffers[compnum][rownum][blocknum][i] = recoef;
+                                }
+                            } else {
                                 sumcec += coeferr;
-                                coef_buffers[compnum][rownum][blocknum][i] = recoef;
                             }
-                        } else {
-                            sumcec += coeferr;
                         }
                         numc++;
                     }
