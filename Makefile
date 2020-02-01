@@ -1,5 +1,5 @@
 PNAME=jpegquant
-PROGS=$(PNAME) jpegcstat jpegcshrink
+PROGS=$(PNAME) jpegquarel jpegcstat jpegcshrink
 SRCS=src
 CC=gcc
 CFLAGS=-Wall
@@ -12,6 +12,9 @@ RM=rm -fv
 all: $(PROGS)
 
 jpegquant: $(SRCS)/jpegquant.c
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -s
+
+jpegquarel: $(SRCS)/jpegquarel.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -s
 
 jpegcstat: $(SRCS)/jpegcstat.c
@@ -31,6 +34,6 @@ install: $(PROGS)
 	$(INSTALL) -m 0755 $(PROGS) $(PREFIX)/bin/
 	$(INSTALL) -d $(DATAPREFIX)
 	$(INSTALL) -d $(DATAPREFIX)/man/man1
-	$(INSTALL) -m 0644 man/man1/$(PNAME).1 man/man1/jpegcstat.1 man/man1/jpegcshrink.1 $(DATAPREFIX)/man/man1
+	$(INSTALL) -m 0644 man/man1/$(PNAME).1 man/man1/jpegquarel.1 man/man1/jpegcstat.1 man/man1/jpegcshrink.1 $(DATAPREFIX)/man/man1
 	$(INSTALL) -d $(DATAPREFIX)/doc/$(PNAME)
 	$(INSTALL) -m 0644 LICENSE README.md $(DATAPREFIX)/doc/$(PNAME)

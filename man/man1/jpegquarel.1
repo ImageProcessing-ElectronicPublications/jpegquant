@@ -1,21 +1,18 @@
-.TH "jpegcshrink" 1 "01 Feb 2020" "0.1.1" "User Manual"
+.TH "jpegquarel" 1 "01 Feb 2020" "0.1.1" "User Manual"
 
 .SH NAME
-jpegcshrink
+jpegquarel
 
 .SH SYNOPSIS
-\fBjpegcshrink\fR [options] input.jpg output.jpg
+\fBjpegquant\fR [options] input.jpg output.jpg
 
 .SH DESCRIPTION
-JPEG DCT coefficients access in C. Shrink JPEG DCT coefficients.
+JPEG DCT coefficients access in C. Relative quant JPEG DCT coefficients.
 
 .SH OPTIONS
 .TP
 \fB-c\fR N
 count cicle (int, optional, default = 1)
-.TP
-\fB-d\fR N
-delta coeff (default = 0);
 .TP
 \fB-l\fR N
 lower bound (int, optional, default = 0)
@@ -23,11 +20,17 @@ lower bound (int, optional, default = 0)
 \fB-u\fR N
 upper bound (int, optional, default = max)
 .TP
+\fB-k\fR N.N
+coeff average (default = 1.0);
+.TP
+\fB-q\fR N.N
+quant (default = 1.0);
+.TP
 \fB-h\fR
 help
 
 .SH EXAMPLE
-\fBjpegcshrink\fR -d 5 -l 5 sample.jpg sample.js5l5.jpg
+\fBjpegquarel\fR -q 3 sample.jpg sample.jqr3.jpg
 
 .SH COPYRIGHT
  Copyright (C) 2012, Owen Campbell-Moore.
@@ -37,9 +40,9 @@ help
 .SH SEE ALSO
  cjpeg(1),
  djpeg(1),
+ jpegcshrink(1),
  jpegcstat(1),
  jpegquant(1),
- jpegquarel(1),
  jpeg-recompress(1).
 
 .SH CONTACTS
