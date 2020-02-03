@@ -147,6 +147,7 @@ main (int argc, char **argv)
 
     /* Copy compression parameters from the input file to the output file */
     jpeg_copy_critical_parameters(&inputinfo, &outputinfo);
+    outputinfo.optimize_coding = TRUE;
 
     /* Copy DCT coeffs to a new array */
     int num_components = inputinfo.num_components;

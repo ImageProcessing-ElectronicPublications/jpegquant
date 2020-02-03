@@ -63,7 +63,7 @@ main (int argc, char **argv)
     FILE * input_file;
     FILE * output_file;
     char *inputname, *outputname;
-    double recoef, coeferr, sumce, sumcec, sumcend, numc = 0.0, iquant = 1.0, quant = 1.0, thres=0.0, kavr = 1.0;
+    double coeforig, recoef, coeferr, sumce, sumcec, sumcend, numc = 0.0, iquant = 1.0, quant = 1.0, thres=0.0, kavr = 1.0;
     int opt, fhelp = 0, ccicle = 1, ct, lower = 0, upper = -1;
 
     /* Handle arguments */
@@ -156,6 +156,7 @@ main (int argc, char **argv)
 
     /* Copy compression parameters from the input file to the output file */
     jpeg_copy_critical_parameters(&inputinfo, &outputinfo);
+    outputinfo.optimize_coding = TRUE;
 
     /* Copy DCT coeffs to a new array */
     int num_components = inputinfo.num_components;
@@ -204,12 +205,11 @@ main (int argc, char **argv)
                         recoef = coef_buffers[compnum][rownum][blocknum][i];
                         if (recoef > (double)lower && (upper < 0 || recoef < (double)upper))
                         {
-                            coeferr = recoef;
-                            recoef = (int)(recoef * quant);
-                            recoef = (int)(recoef * iquant);
-                            recoef = (int)(recoef * kavr + coeferr * (1.0 - kavr));
-                            coeferr -= recoef;
-                            coeferr = (coeferr < 0) ? -coeferr : coeferr;
+                            coeforig = recoef;
+                            recoef = (int)(recoef * quant + 0.5);
+                            recoef = (int)(recoef * iquant + 0.5);
+                            coeferr = (coeforig < recoef) ? (recoef - coeforig) : (coeforig - recoef);
+                            recoef = (int)(recoef * kavr + coeforig * (1.0 - kavr) + 0.5);
                             if (ct > 0)
                             {
                                 if (coeferr * thres < sumce)
@@ -234,6 +234,7 @@ main (int argc, char **argv)
             sumce = sumcec;
         }
     }
+    sumcend *= kavr;
     fprintf(stderr, "QuantErr = %f\n", sumcend);
 
     /* Output the new DCT coeffs to a JPEG file */
