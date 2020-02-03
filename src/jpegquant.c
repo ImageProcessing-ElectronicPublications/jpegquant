@@ -41,7 +41,6 @@ void usage (char *cmd)
     printf("         -u N    upper bound (int, optional, default = max)\n");
     printf("         -k N.N  coeff average (double, optional, default = 1.0)\n");
     printf("         -q N.N  quant (double, optional, default = 1.0)\n");
-    printf("         -t N.N  threshold (double, optional, default = 0.0)\n");
     printf("         -h      this help\n\n");
     exit(EXIT_FAILURE);
 }
@@ -63,11 +62,11 @@ main (int argc, char **argv)
     FILE * input_file;
     FILE * output_file;
     char *inputname, *outputname;
-    double coeforig, recoef, coeferr, sumce, sumcec, sumcend, numc = 0.0, iquant = 1.0, quant = 1.0, thres=0.0, kavr = 1.0;
+    double coeforig, coefres, coeferr, sumcec, sumcend, numc = 0.0, iquant = 1.0, quant = 1.0, kavr = 1.0;
     int opt, fhelp = 0, ccicle = 1, ct, lower = 0, upper = -1;
 
     /* Handle arguments */
-    while ((opt = getopt(argc, argv, ":c:l:u:k:q:t:h")) != -1)
+    while ((opt = getopt(argc, argv, ":c:l:u:k:q:h")) != -1)
     {
         switch(opt)
         {
@@ -86,9 +85,6 @@ main (int argc, char **argv)
             case 'q':
                 quant = atof(optarg);
                 break;
-            case 't':
-                thres = atof(optarg);
-                break;
             case 'h':
                 fhelp = 1;
                 break;
@@ -100,7 +96,7 @@ main (int argc, char **argv)
                 break;
         }
     }
-    ccicle = (ccicle < 1) ? 2 : (ccicle + 1);
+    ccicle = (ccicle < 1) ? 1 : ccicle;
     kavr = (kavr < 0.0 || kavr > 1.0) ? 1.0 : kavr;
     if (optind + 1 > argc || fhelp) usage(argv[0]);
 
@@ -188,7 +184,6 @@ main (int argc, char **argv)
     iquant = 1.0 / quant;
     upper = ((upper > 0)  && (upper < lower)) ? lower : upper;
     lower--;
-    sumce = 0.0;
     sumcend = 0.0;
     for (ct=0; ct<ccicle; ct++)
     {
@@ -202,24 +197,16 @@ main (int argc, char **argv)
                 {
                     for (i=0; i<DCTSIZE2; i++)
                     {
-                        recoef = coef_buffers[compnum][rownum][blocknum][i];
-                        if (recoef > (double)lower && (upper < 0 || recoef < (double)upper))
+                        coeforig = coef_buffers[compnum][rownum][blocknum][i];
+                        if (coeforig > 0.0 && coeforig > (double)lower && (upper < 0 || coefres < (double)upper))
                         {
-                            coeforig = recoef;
-                            recoef = (int)(recoef * quant + 0.5);
-                            recoef = (int)(recoef * iquant + 0.5);
-                            coeferr = (coeforig < recoef) ? (recoef - coeforig) : (coeforig - recoef);
-                            recoef = (int)(recoef * kavr + coeforig * (1.0 - kavr) + 0.5);
-                            if (ct > 0)
-                            {
-                                if (coeferr * thres < sumce)
-                                {
-                                    sumcec += coeferr;
-                                    coef_buffers[compnum][rownum][blocknum][i] = recoef;
-                                }
-                            } else {
-                                sumcec += coeferr;
-                            }
+                            coefres = coeforig;
+                            coefres = (int)(coefres * quant + 0.5);
+                            coefres = (int)(coefres * iquant + 0.5);
+                            coeferr = (coeforig < coefres) ? (coefres - coeforig) : (coeforig - coefres);
+                            coefres = (int)(coefres * kavr + coeforig * (1.0 - kavr) + 0.5);
+                            sumcec += coeferr;
+                            coef_buffers[compnum][rownum][blocknum][i] = coefres;
                         }
                         numc++;
                     }
@@ -227,12 +214,7 @@ main (int argc, char **argv)
             }
         }
         if (numc > 0) sumcec /= numc;
-        if (ct > 0)
-        {
-            sumcend += sumcec;
-        } else {
-            sumce = sumcec;
-        }
+        sumcend += sumcec;
     }
     sumcend *= kavr;
     fprintf(stderr, "QuantErr = %f\n", sumcend);
