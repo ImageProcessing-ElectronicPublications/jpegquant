@@ -17,33 +17,33 @@ Origin:
 ./jpegquant -q 2 lena.q100.jpg lena.q100.jq02.jpg
 ```
 ![Quant=02](images/lena.q100.jq02.jpg)  
-[176313]  
+[220516]  
 ![butteraugli=2](images/lena.q100.jq02.butteraugli.jpg)  
-butteraugli: 0.782326
+butteraugli: 0.751521
 
 ```
 ./jpegquant -q 4 lena.q100.jpg lena.q100.jq04.jpg
 ```
 ![Quant=04](images/lena.q100.jq04.jpg)  
-[110952]  
+[215382]  
 ![butteraugli=4](images/lena.q100.jq04.butteraugli.jpg)  
-butteraugli: 1.688544
+butteraugli: 0.973014
 
 ```
 ./jpegquant -q 10 lena.q100.jpg lena.q100.jq10.jpg
 ```
 ![Quant=10](images/lena.q100.jq10.jpg)  
-[45875]  
+[179893]  
 ![butteraugli=10](images/lena.q100.jq10.butteraugli.jpg)  
-butteraugli: 4.625142
+butteraugli: 1.955633
 
 ```
 ./jpegquant -q 20 lena.q100.jpg lena.q100.jq20.jpg
 ```
 ![Quant=20](images/lena.q100.jq20.jpg)  
-[26211]  
+[163137]  
 ![butteraugli=20](images/lena.q100.jq20.butteraugli.jpg)  
-butteraugli: 7.342572
+butteraugli: 2.807457
 
 See also
 ========
