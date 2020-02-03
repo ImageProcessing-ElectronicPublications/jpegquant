@@ -1,5 +1,5 @@
 /*
- * jpegquant.c
+ * jpegquarel.c
  * based dct.c
  *
  * Copyright (C) 2012, Owen Campbell-Moore.
@@ -62,7 +62,7 @@ main (int argc, char **argv)
     FILE * input_file;
     FILE * output_file;
     char *inputname, *outputname;
-    double recoef, coeferr, sumcec, sumcend, numc = 0.0, quant = 1.0, kavr = 1.0, dev, zcoef;
+    double coeforig, coefres, coefold, coeferr, sumcec, sumcend, numc = 0.0, quant = 1.0, iquant = 1.0, iquant2, kavr = 1.0;
     int opt, fhelp = 0, ccicle = 1, ct, lower = 0, upper = -1;
 
     /* Handle arguments */
@@ -179,12 +179,14 @@ main (int argc, char **argv)
         }
     }
 
-    quant = (quant < 0.0 || quant > 0.0) ? quant : 1.0;
     fprintf(stderr, "Quant = %f\n", quant);
-    dev = quant / 256.0;
+    quant = (quant < 0.0 || quant > 0.0) ? 1.0 / quant : 1.0;
+    iquant = 1.0 / quant;
+    iquant2 = 0.5 * iquant;
     upper = ((upper > 0)  && (upper < lower)) ? lower : upper;
     lower--;
     sumcend = 0.0;
+    coefold = 0.0;
     for (ct=0; ct<ccicle; ct++)
     {
         numc = 0;
@@ -197,23 +199,25 @@ main (int argc, char **argv)
                 {
                     for (i=0; i<DCTSIZE2; i++)
                     {
-                        recoef = coef_buffers[compnum][rownum][blocknum][i];
-                        if (recoef > (double)lower && (upper < 0 || recoef < (double)upper))
+                        coeforig = coef_buffers[compnum][rownum][blocknum][i];
+                        coeferr = (coeforig < coefold) ? (coefold - coeforig) : (coeforig - coefold);
+                        if ((coeferr > iquant2) && (coeforig > 0.0) && (coeforig > (double)lower) && (upper < 0 || coefres < (double)upper))
                         {
-                            coeferr = recoef;
-                            zcoef = (recoef * dev);
-                            if (zcoef > 0.0)
-                            {
-                                recoef = (int)(recoef / zcoef + 0.5);
-                                recoef = (int)(recoef * zcoef + 0.5);
-                                recoef = (int)(recoef * kavr + coeferr * (1.0 - kavr) + 0.5);
-                            }
-                            coeferr -= recoef;
-                            coeferr = (coeferr < 0) ? -coeferr : coeferr;
+                            coefres = coeforig;
+                            coefres = (int)(coefres * quant + 0.5);
+                            coefres = (int)(coefres * iquant + 0.5);
+                            coeferr = (coeforig < coefres) ? (coefres - coeforig) : (coeforig - coefres);
+                            coefres = (int)(coefres * kavr + coeforig * (1.0 - kavr) + 0.5);
+                            coef_buffers[compnum][rownum][blocknum][i] = coefres;
                             sumcec += coeferr;
-                            coef_buffers[compnum][rownum][blocknum][i] = recoef;
+                        }
+                        else
+                        {
+                            coefres = coeforig;
+                            coeferr = 0.0;
                         }
                         numc++;
+                        coefold = coefres;
                     }
                 }
             }
@@ -221,6 +225,7 @@ main (int argc, char **argv)
         if (numc > 0) sumcec /= numc;
         sumcend += sumcec;
     }
+    sumcend *= kavr;
     fprintf(stderr, "QuantErr = %f\n", sumcend);
 
     /* Output the new DCT coeffs to a JPEG file */
