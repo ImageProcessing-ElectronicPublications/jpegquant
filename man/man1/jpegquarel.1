@@ -1,4 +1,4 @@
-.TH "jpegquarel" 1 "03 Feb 2020" "0.2.1" "User Manual"
+.TH "jpegquarel" 1 "04 Feb 2020" "0.2.2" "User Manual"
 
 .SH NAME
 jpegquarel
@@ -14,14 +14,17 @@ JPEG DCT coefficients access in C. Relative quant JPEG DCT coefficients.
 \fB-c\fR N
 count cicle (int, optional, default = 1)
 .TP
+\fB-k\fR N.N
+coeff average (default = 1.0);
+.TP
 \fB-l\fR N
 lower bound (int, optional, default = 0)
 .TP
 \fB-u\fR N
 upper bound (int, optional, default = max)
 .TP
-\fB-k\fR N.N
-coeff average (default = 1.0);
+\fB-d\fR N.N
+rounding quant (default = 0.5)
 .TP
 \fB-q\fR N.N
 quant (default = 1.0);
@@ -48,4 +51,3 @@ help
 .SH CONTACTS
 Website:
  \fIhttps://github.com/ImageProcessing-ElectronicPublications/jpegquant\fR
-

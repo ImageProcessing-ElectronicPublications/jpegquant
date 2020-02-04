@@ -37,9 +37,10 @@ void usage (char *cmd)
     printf("\nUsage:\n %s [options] input.jpg output.jpg\n\n", cmd);
     printf(" options:\n");
     printf("         -c N    count cicle (int, optional, default = 1)\n");
+    printf("         -k N.N  coeff average (double, optional, default = 1.0)\n");
     printf("         -l N    lower bound (int, optional, default = 0)\n");
     printf("         -u N    upper bound (int, optional, default = max)\n");
-    printf("         -k N.N  coeff average (double, optional, default = 1.0)\n");
+    printf("         -d N.N  rounding quant (double, optional, default = 0.5)\n");
     printf("         -q N.N  quant (double, optional, default = 1.0)\n");
     printf("         -h      this help\n\n");
     exit(EXIT_FAILURE);
@@ -62,16 +63,19 @@ main (int argc, char **argv)
     FILE * input_file;
     FILE * output_file;
     char *inputname, *outputname;
-    double coeforig, coefres, coefold, coeferr, sumcec, sumcend, numc = 0.0, quant = 1.0, iquant = 1.0, iquant2, kavr = 1.0;
+    double coeforig, coefres, coefold, coeferr, sumcec, sumcend, numc = 0.0, quant = 1.0, iquant = 1.0, qdelta = 0.5, iquant2, kavr = 1.0;
     int opt, fhelp = 0, ccicle = 1, ct, lower = 0, upper = -1;
 
     /* Handle arguments */
-    while ((opt = getopt(argc, argv, ":c:l:u:k:q:h")) != -1)
+    while ((opt = getopt(argc, argv, ":c:k:l:u:d:q:h")) != -1)
     {
         switch(opt)
         {
             case 'c':
                 ccicle = atoi(optarg);
+                break;
+            case 'k':
+                kavr = atof(optarg);
                 break;
             case 'l':
                 lower = atoi(optarg);
@@ -79,8 +83,8 @@ main (int argc, char **argv)
             case 'u':
                 upper = atoi(optarg);
                 break;
-            case 'k':
-                kavr = atof(optarg);
+            case 'd':
+                qdelta = atof(optarg);
                 break;
             case 'q':
                 quant = atof(optarg);
@@ -204,10 +208,10 @@ main (int argc, char **argv)
                         if ((coeferr > iquant2) && (coeforig > 0.0) && (coeforig > (double)lower) && (upper < 0 || coefres < (double)upper))
                         {
                             coefres = coeforig;
-                            coefres = (int)(coefres * quant + 0.5);
-                            coefres = (int)(coefres * iquant + 0.5);
+                            coefres = (int)(coefres * quant + qdelta);
+                            coefres = (int)(coefres * iquant + qdelta);
                             coeferr = (coeforig < coefres) ? (coefres - coeforig) : (coeforig - coefres);
-                            coefres = (int)(coefres * kavr + coeforig * (1.0 - kavr) + 0.5);
+                            coefres = (int)(coefres * kavr + coeforig * (1.0 - kavr) + qdelta);
                             coef_buffers[compnum][rownum][blocknum][i] = coefres;
                             sumcec += coeferr;
                         }
