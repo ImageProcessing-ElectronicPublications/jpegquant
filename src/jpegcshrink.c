@@ -61,7 +61,8 @@ main (int argc, char **argv)
     FILE * input_file;
     FILE * output_file;
     char *inputname, *outputname;
-    double recoef, dcoef, oldcoef = 0.0, coeferr, sumcec, sumcend, numc = 0.0;
+    int recoef, dcoef, oldcoef = 0, coeferr;
+    float sumcec, sumcend, numc = 0.0;
     int opt, fhelp = 0, ccicle = 1, ct, delta = 0, lower = 0, upper = -1;
 
     /* Handle arguments */
@@ -194,11 +195,11 @@ main (int argc, char **argv)
                         recoef = coef_buffers[compnum][rownum][blocknum][i];
                         if (recoef > 0.0)
                         {
-                            if (recoef > (double)lower && (upper < 0 || recoef < (double)upper))
+                            if (recoef > lower && (upper < 0 || recoef < upper))
                             {
                                 coeferr = recoef;
                                 dcoef = (recoef > oldcoef) ? (recoef - oldcoef) : (oldcoef - recoef);
-                                if (dcoef < (double)delta)
+                                if (dcoef < delta)
                                     recoef = oldcoef;
                                 coeferr -= recoef;
                                 coeferr = (coeferr < 0) ? -coeferr : coeferr;
