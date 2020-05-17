@@ -63,7 +63,8 @@ main (int argc, char **argv)
     FILE * input_file;
     FILE * output_file;
     char *inputname, *outputname;
-    double coeforig, coefres, coefold, coeferr, sumcec, sumcend, numc = 0.0, quant = 1.0, iquant = 1.0, qdelta = 0.5, iquant2, kavr = 1.0;
+    int coeforig, coefres, coefold, coeferr;
+    float sumcec, sumcend, numc = 0.0f, quant = 1.0f, iquant = 1.0f, qdelta = 0.5f, iquant2, kavr = 1.0f;
     int opt, fhelp = 0, ccicle = 1, ct, lower = 0, upper = -1;
 
     /* Handle arguments */
@@ -101,7 +102,7 @@ main (int argc, char **argv)
         }
     }
     ccicle = (ccicle < 1) ? 1 : ccicle;
-    kavr = (kavr < 0.0 || kavr > 1.0) ? 1.0 : kavr;
+    kavr = (kavr < 0.0f || kavr > 1.0f) ? 1.0f : kavr;
     if (optind + 1 > argc || fhelp) usage(argv[0]);
 
     inputname = argv[optind];
@@ -184,13 +185,13 @@ main (int argc, char **argv)
     }
 
     fprintf(stderr, "Quant = %f\n", quant);
-    quant = (quant < 0.0 || quant > 0.0) ? 1.0 / quant : 1.0;
-    iquant = 1.0 / quant;
-    iquant2 = 0.5 * iquant;
+    quant = (quant < 0.0f || quant > 0.0f) ? 1.0f / quant : 1.0f;
+    iquant = 1.0f / quant;
+    iquant2 = 0.5f * iquant;
     upper = ((upper > 0)  && (upper < lower)) ? lower : upper;
     lower--;
-    sumcend = 0.0;
-    coefold = 0.0;
+    sumcend = 0.0f;
+    coefold = 0;
     for (ct=0; ct<ccicle; ct++)
     {
         numc = 0;
@@ -205,20 +206,20 @@ main (int argc, char **argv)
                     {
                         coeforig = coef_buffers[compnum][rownum][blocknum][i];
                         coeferr = (coeforig < coefold) ? (coefold - coeforig) : (coeforig - coefold);
-                        if ((coeferr > iquant2) && (coeforig > 0.0) && (coeforig > (double)lower) && (upper < 0 || coefres < (double)upper))
+                        if ((coeferr > iquant2) && (coeforig > 0) && (coeforig > lower) && (upper < 0 || coeforig < upper))
                         {
                             coefres = coeforig;
-                            coefres = (int)(coefres * quant + qdelta);
-                            coefres = (int)(coefres * iquant + qdelta);
+                            coefres = (int)((float)coefres * quant + qdelta);
+                            coefres = (int)((float)coefres * iquant + qdelta);
                             coeferr = (coeforig < coefres) ? (coefres - coeforig) : (coeforig - coefres);
-                            coefres = (int)(coefres * kavr + coeforig * (1.0 - kavr) + qdelta);
+                            coefres = (int)((float)coefres * kavr + (float)coeforig * (1.0 - kavr) + qdelta);
                             coef_buffers[compnum][rownum][blocknum][i] = coefres;
                             sumcec += coeferr;
                         }
                         else
                         {
                             coefres = coeforig;
-                            coeferr = 0.0;
+                            coeferr = 0;
                         }
                         numc++;
                         coefold = coefres;
