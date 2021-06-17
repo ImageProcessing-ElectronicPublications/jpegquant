@@ -51,13 +51,13 @@ main (int argc, char **argv)
     struct jpeg_decompress_struct inputinfo;
     struct jpeg_error_mgr jerr;
     jvirt_barray_ptr *coef_arrays;
-    JDIMENSION i, compnum, rownum, blocknum;
+    JDIMENSION compnum, rownum, blocknum;
     JBLOCKARRAY coef_buffers[MAX_COMPONENTS];
     JBLOCKARRAY row_ptrs[MAX_COMPONENTS];
     FILE * input_file;
     char *inputname;
-    int opt, fhelp = 0, lower = 0, upper = -1, cmax = 0, coef;
-    int *hist;
+    int opt, fhelp = 0, lower = -65535, upper = 65535, cmax = 0, cmin = 0, coef;
+    int i, *hist;
 
     /* Handle arguments */
     while ((opt = getopt(argc, argv, ":l:u:h")) != -1)
@@ -147,13 +147,13 @@ main (int argc, char **argv)
                 {
                     coef = (int)coef_buffers[compnum][rownum][blocknum][i];
                     cmax = (coef > cmax) ? coef : cmax;
+                    cmin = (coef < cmin) ? coef : cmin;
                 }
             }
         }
     }
-    printf("Max = %d\n", cmax);
-    cmax++;
-    hist = (int*)malloc (cmax * sizeof(int));
+    printf("Max = %d, Min = %d\n", cmax, cmin);
+    hist = (int*)malloc ((cmax - cmin) * sizeof(int));
     for (compnum=0; compnum<num_components; compnum++)
     {
         for (rownum=0; rownum<height_in_blocks[compnum]; rownum++)
@@ -163,17 +163,17 @@ main (int argc, char **argv)
                 for (i=0; i<DCTSIZE2; i++)
                 {
                     coef = (int)coef_buffers[compnum][rownum][blocknum][i];
-                    hist[coef]++;
+                    hist[coef - cmin]++;
                 }
             }
         }
     }
-    upper = (upper < lower) ? cmax : upper;
-    lower--;
-    for (i=0; i<cmax; i++)
+    upper = (upper == 65535) ? cmax : upper;
+    lower = (lower == -65535) ? cmin: lower;
+    for (i = cmin; i < cmax + 1; i++)
     {
-        if (((int)i > lower) && ((int)i < upper))
-            printf("%d = %d\n", i, hist[i]);
+        if (((int)i >= lower) && ((int)i <= upper))
+            printf("%d = %d\n", i, hist[i - cmin]);
     }
 
     /* Close files */

@@ -63,7 +63,7 @@ main (int argc, char **argv)
     char *inputname, *outputname;
     int recoef, dcoef, oldcoef = 0, coeferr;
     float sumcec, sumcend, numc = 0.0;
-    int opt, fhelp = 0, ccicle = 1, ct, delta = 0, lower = 0, upper = -1;
+    int opt, fhelp = 0, ccicle = 1, ct, delta = 0, lower = -65535, upper = 65535;
 
     /* Handle arguments */
     while ((opt = getopt(argc, argv, ":c:d:l:u:h")) != -1)
@@ -137,7 +137,7 @@ main (int argc, char **argv)
     fprintf(stderr, "Read DCT coefficients successfully written to %s\n", inputname);
 
     /* Allocate memory for reading out DCT coeffs */
-    for (compnum=0; compnum<inputinfo.num_components; compnum++)
+    for (compnum = 0; compnum < inputinfo.num_components; compnum++)
         coef_buffers[compnum] = ((&inputinfo)->mem->alloc_barray)
                             ((j_common_ptr) &inputinfo, JPOOL_IMAGE,
                              inputinfo.comp_info[compnum].width_in_blocks,
@@ -155,19 +155,19 @@ main (int argc, char **argv)
     size_t block_row_size[num_components];
     int width_in_blocks[num_components];
     int height_in_blocks[num_components];
-    for (compnum=0; compnum<num_components; compnum++)
+    for (compnum = 0; compnum < num_components; compnum++)
     {
         height_in_blocks[compnum] = inputinfo.comp_info[compnum].height_in_blocks;
         width_in_blocks[compnum] = inputinfo.comp_info[compnum].width_in_blocks;
         block_row_size[compnum] = (size_t) SIZEOF(JCOEF)*DCTSIZE2*width_in_blocks[compnum];
-        for (rownum=0; rownum<height_in_blocks[compnum]; rownum++)
+        for (rownum = 0; rownum < height_in_blocks[compnum]; rownum++)
         {
             row_ptrs[compnum] = ((&inputinfo)->mem->access_virt_barray)
                                 ((j_common_ptr) &inputinfo, coef_arrays[compnum],
                                     rownum, (JDIMENSION) 1, FALSE);
-            for (blocknum=0; blocknum<width_in_blocks[compnum]; blocknum++)
+            for (blocknum = 0; blocknum < width_in_blocks[compnum]; blocknum++)
             {
-                for (i=0; i<DCTSIZE2; i++)
+                for (i = 0; i < DCTSIZE2; i++)
                 {
                     coef_buffers[compnum][rownum][blocknum][i] = row_ptrs[compnum][0][blocknum][i];
                 }
@@ -178,34 +178,29 @@ main (int argc, char **argv)
     fprintf(stderr, "Delta = %d\n", delta);
     delta++;
     sumcend = 0.0;
-    upper = ((upper > 0)  && (upper < lower)) ? lower : upper;
-    lower--;
-    for (ct=0; ct<ccicle; ct++)
+    for (ct = 0; ct < ccicle; ct++)
     {
         numc = 0;
         sumcec = 0.0;
-        for (compnum=0; compnum<num_components; compnum++)
+        for (compnum = 0; compnum < num_components; compnum++)
         {
-            for (rownum=0; rownum<height_in_blocks[compnum]; rownum++)
+            for (rownum = 0; rownum < height_in_blocks[compnum]; rownum++)
             {
-                for (blocknum=0; blocknum<width_in_blocks[compnum]; blocknum++)
+                for (blocknum = 0; blocknum < width_in_blocks[compnum]; blocknum++)
                 {
-                    for (i=0; i<DCTSIZE2; i++)
+                    for (i = 0; i < DCTSIZE2; i++)
                     {
                         recoef = coef_buffers[compnum][rownum][blocknum][i];
-                        if (recoef > 0.0)
+                        if ((recoef >= lower) && (recoef <= upper))
                         {
-                            if (recoef > lower && (upper < 0 || recoef < upper))
-                            {
-                                coeferr = recoef;
-                                dcoef = (recoef > oldcoef) ? (recoef - oldcoef) : (oldcoef - recoef);
-                                if (dcoef < delta)
-                                    recoef = oldcoef;
-                                coeferr -= recoef;
-                                coeferr = (coeferr < 0) ? -coeferr : coeferr;
-                                sumcec += coeferr;
-                                coef_buffers[compnum][rownum][blocknum][i] = recoef;
-                            }
+                            coeferr = recoef;
+                            dcoef = (recoef > oldcoef) ? (recoef - oldcoef) : (oldcoef - recoef);
+                            if (dcoef < delta)
+                                recoef = oldcoef;
+                            coeferr -= recoef;
+                            coeferr = (coeferr < 0) ? -coeferr : coeferr;
+                            sumcec += coeferr;
+                            coef_buffers[compnum][rownum][blocknum][i] = recoef;
                         }
                         oldcoef = recoef;
                         numc++;
@@ -219,9 +214,9 @@ main (int argc, char **argv)
     fprintf(stderr, "ShrinkErr = %f\n", sumcend);
 
     /* Output the new DCT coeffs to a JPEG file */
-    for (compnum=0; compnum<num_components; compnum++)
+    for (compnum = 0; compnum < num_components; compnum++)
     {
-        for (rownum=0; rownum<height_in_blocks[compnum]; rownum++)
+        for (rownum = 0; rownum < height_in_blocks[compnum]; rownum++)
         {
             row_ptrs[compnum] = ((&outputinfo)->mem->access_virt_barray)
                                 ((j_common_ptr) &outputinfo, coef_arrays[compnum],
