@@ -1,4 +1,4 @@
-.TH "jpegquarel" 1 "04 Feb 2020" "0.2.2" "User Manual"
+.TH "jpegquarel" 1 "18 Jun 2021" "0.2.5" "User Manual"
 
 .SH NAME
 jpegquarel
@@ -18,10 +18,10 @@ count cicle (int, optional, default = 1)
 coeff average (default = 1.0);
 .TP
 \fB-l\fR N
-lower bound (int, optional, default = 0)
+lower bound (int, optional, default = -65535)
 .TP
 \fB-u\fR N
-upper bound (int, optional, default = max)
+upper bound (int, optional, default = 65535)
 .TP
 \fB-d\fR N.N
 rounding quant (default = 0.5)
@@ -37,7 +37,7 @@ help
 
 .SH COPYRIGHT
  Copyright (C) 2012, Owen Campbell-Moore.
- Modify 2019-2020, zvezdochiot
+ Modify 2019-2021, zvezdochiot
  Public Domain Mark 1.0
 
 .SH SEE ALSO

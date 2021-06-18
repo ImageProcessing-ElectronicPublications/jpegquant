@@ -35,8 +35,8 @@ void usage (char *cmd)
 {
     printf("\nUsage:\n %s [options] input.jpg\n\n", cmd);
     printf(" options:\n");
-    printf("         -l N    lower bound (int, optional, default = 0)\n");
-    printf("         -u N    upper bound (int, optional, default = max)\n");
+    printf("         -l N    lower bound (int, optional, default = -65535)\n");
+    printf("         -u N    upper bound (int, optional, default = 65535)\n");
     printf("         -h      this help\n\n");
     exit(EXIT_FAILURE);
 }

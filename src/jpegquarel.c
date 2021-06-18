@@ -38,8 +38,8 @@ void usage (char *cmd)
     printf(" options:\n");
     printf("         -c N    count cicle (int, optional, default = 1)\n");
     printf("         -k N.N  coeff average (double, optional, default = 1.0)\n");
-    printf("         -l N    lower bound (int, optional, default = 0)\n");
-    printf("         -u N    upper bound (int, optional, default = max)\n");
+    printf("         -l N    lower bound (int, optional, default = -65535)\n");
+    printf("         -u N    upper bound (int, optional, default = 65535)\n");
     printf("         -d N.N  rounding quant (double, optional, default = 0.5)\n");
     printf("         -q N.N  quant (double, optional, default = 1.0)\n");
     printf("         -h      this help\n\n");

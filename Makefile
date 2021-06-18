@@ -2,8 +2,12 @@ PNAME=jpegquant
 PROGS=$(PNAME) jpegquarel jpegcstat jpegcshrink
 SRCS=src
 CC=gcc
-CFLAGS=-Wall
-LIBS=-ljpeg
+CFLAGS=-Wall -Isrc
+ifeq ($(OS),Windows_NT)
+  LIBS=libjpeg-8.dll
+else
+  LIBS= -ljpeg
+endif
 PREFIX?=/usr/local
 DATAPREFIX=$(PREFIX)/share
 INSTALL=install
@@ -22,9 +26,6 @@ jpegcstat: $(SRCS)/jpegcstat.c
 
 jpegcshrink: $(SRCS)/jpegcshrink.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -s
-
-mozjpegquant: $(SRCS)/jpegquant.c
-	$(CC) $(CFLAGS) -I/usr/include/mozjpeg -o $@ $^ -lmozjpeg -s
 
 clean:
 	$(RM) $(PROGS)

@@ -37,9 +37,8 @@ void usage (char *cmd)
     printf("\nUsage:\n %s [options] input.jpg output.jpg\n\n", cmd);
     printf(" options:\n");
     printf("         -c N    count cicle (int, optional, default = 1)\n");
-    printf("         -k N.N  coeff average (double, optional, default = 1.0)\n");
-    printf("         -l N    lower bound (int, optional, default = 0)\n");
-    printf("         -u N    upper bound (int, optional, default = max)\n");
+    printf("         -l N    lower bound (int, optional, default = -65535)\n");
+    printf("         -u N    upper bound (int, optional, default = 65535)\n");
     printf("         -d N.N  rounding quant (double, optional, default = 0.5)\n");
     printf("         -q N.N  quant (double, optional, default = 1.0)\n");
     printf("         -h      this help\n\n");
@@ -60,23 +59,21 @@ main (int argc, char **argv)
     JDIMENSION i, compnum, rownum, blocknum;
     JBLOCKARRAY coef_buffers[MAX_COMPONENTS];
     JBLOCKARRAY row_ptrs[MAX_COMPONENTS];
+    JQUANT_TBL *qtbl;
     FILE * input_file;
     FILE * output_file;
     char *inputname, *outputname;
-    int coeforig, coefres, coeferr;
-    float sumcec, sumcend, numc = 0.0f, iquant = 1.0f, quant = 1.0f, qdelta = 0.5f, qsdelta, kavr = 1.0f;
+    int qtblno, x, coeforig, coefres, coefrev, coeferr;
+    float sumcec, sumcend, numc = 0.0f, iquant = 1.0f, quant = 1.0f, qdelta = 0.5f, qsdelta;
     int opt, fhelp = 0, ccicle = 1, ct, lower = -65535, upper = 65535;
 
     /* Handle arguments */
-    while ((opt = getopt(argc, argv, ":c:k:l:u:d:q:h")) != -1)
+    while ((opt = getopt(argc, argv, ":c:l:u:d:q:h")) != -1)
     {
         switch(opt)
         {
             case 'c':
                 ccicle = atoi(optarg);
-                break;
-            case 'k':
-                kavr = atof(optarg);
                 break;
             case 'l':
                 lower = atoi(optarg);
@@ -102,7 +99,6 @@ main (int argc, char **argv)
         }
     }
     ccicle = (ccicle < 1) ? 1 : ccicle;
-    kavr = (kavr < 0.0f || kavr > 1.0f) ? 1.0f : kavr;
     if (optind + 1 > argc || fhelp) usage(argv[0]);
 
     inputname = argv[optind];
@@ -188,6 +184,13 @@ main (int argc, char **argv)
     quant = (quant < 0.0f || quant > 0.0f) ? 1.0f / quant : 1.0f;
     iquant = 1.0f / quant;
 
+    for (qtblno = 0; qtblno < NUM_QUANT_TBLS; qtblno++)
+    {
+        qtbl = outputinfo.quant_tbl_ptrs[qtblno];
+        if (qtbl)
+            for (x = 1; x < DCTSIZE2; x++) qtbl->quantval[x] = (qtbl->quantval[x] * iquant);
+    }
+
     sumcend = 0.0f;
     for (ct = 0; ct < ccicle; ct++)
     {
@@ -207,9 +210,8 @@ main (int argc, char **argv)
                             coefres = coeforig;
                             qsdelta = (coeforig < 0) ? -qdelta : qdelta;
                             coefres = (int)((float)coefres * quant + qsdelta);
-                            coefres = (int)((float)coefres * iquant + qsdelta);
-                            coeferr = (coeforig < coefres) ? (coefres - coeforig) : (coeforig - coefres);
-                            coefres = (int)((float)coefres * kavr + (float)coeforig * (1.0 - kavr) + qsdelta);
+                            coefrev = (int)((float)coefres * iquant + qsdelta);
+                            coeferr = (coeforig < coefrev) ? (coefrev - coeforig) : (coeforig - coefrev);
                             sumcec += (float)coeferr;
                             coef_buffers[compnum][rownum][blocknum][i] = coefres;
                         }
@@ -221,7 +223,6 @@ main (int argc, char **argv)
         if (numc > 0) sumcec /= numc;
         sumcend += sumcec;
     }
-    sumcend *= kavr;
     fprintf(stderr, "QuantErr = %f\n", sumcend);
 
     /* Output the new DCT coeffs to a JPEG file */
