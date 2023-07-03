@@ -1,5 +1,5 @@
 PNAME=jpegquant
-PROGS=$(PNAME) jpegquarel jpegcstat jpegcshrink
+PROGS=$(PNAME) jpegquarel jpegcstat jpegcshrink jpegqmask
 SRCS=src
 CC=gcc
 CFLAGS=-Wall -Isrc
@@ -25,6 +25,9 @@ jpegcstat: $(SRCS)/jpegcstat.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -s
 
 jpegcshrink: $(SRCS)/jpegcshrink.c
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -s
+
+jpegqmask: $(SRCS)/jpegqmask.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -s
 
 clean:

@@ -77,7 +77,7 @@ See all [sample files for JPEGquant](https://github.com/ImageProcessing-Electron
 ### Authors
 
 Copyright (C) 2012, Owen Campbell-Moore.  
-Modify 2019-2021, zvezdochiot  
+Modify 2019-2023, zvezdochiot  
 Public Domain Mark 1.0
 
 ### HomePage

@@ -1,36 +1,24 @@
-.TH "jpegquant" 1 "03 Jun 2023" "0.2.6" "User Manual"
+.TH "jpegqmask" 1 "03 Jun 2023" "0.2.6" "User Manual"
 
 .SH NAME
 jpegquant
 
 .SH SYNOPSIS
-\fBjpegquant\fR [options] input.jpg output.jpg
+\fBjpegqmask\fR [options] input.jpg mask.jpg output.jpg
 
 .SH DESCRIPTION
-JPEG DCT coefficients access in C. Quant JPEG DCT coefficients.
+JPEG DCT coefficients access in C. Quant JPEG DCT coefficients by mask.
 
 .SH OPTIONS
 .TP
-\fB-c\fR N
-count cicle (int, optional, default = 1)
-.TP
-\fB-l\fR N
-lower bound (int, optional, default = -65535)
-.TP
-\fB-u\fR N
-upper bound (int, optional, default = 65535)
-.TP
 \fB-d\fR N.N
 rounding quant (default = 0.5)
-.TP
-\fB-q\fR N.N
-quant (default = 1.0);
 .TP
 \fB-h\fR
 help
 
 .SH EXAMPLE
-\fBjpegquant\fR -q 2 sample.jpg sample.jq2.jpg
+\fBjpegqmask\fR sample.jpg sample_mask.jpg sample.m.jpg
 
 .SH COPYRIGHT
  Copyright (C) 2012, Owen Campbell-Moore.
@@ -42,7 +30,7 @@ help
  djpeg(1),
  jpegcshrink(1),
  jpegcstat(1),
- jpegqmask(1),
+ jpegquant(1),
  jpegquarel(1),
  jpeg-recompress(1).
 
